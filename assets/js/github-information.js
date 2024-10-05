@@ -7,7 +7,7 @@ function userInformationHTML(user) {
         </h2>
         <div class="gh-content">
             <div class="gh-avatar">
-                <a href="${user.html_url} target="_blank">
+                <a href="${user.html_url}" target="_blank">
                     <img src="${user.avatar_url}" width="80" height="80" alt="${user.login}" />
                 </a>
             </div>
@@ -37,6 +37,8 @@ function repoInformationHTML(repos) {
 }
 
 function fetchGitHubInformation(event) {
+    $("#gh-user-data").html("");
+    $("#gh-repo-data").html("");
 
     var username = $("#gh-username").val();
     if (!username) {
@@ -54,21 +56,21 @@ function fetchGitHubInformation(event) {
         $.getJSON(`https://api.github.com/users/${username}/repos`)
     ).then(
         function(firstResponse, secondResponse) {
-            var userData = firstResponse;
-            var repoData = secondResponse;
+            var userData = firstResponse[0];
+            var repoData = secondResponse[0];
             $("#gh-user-data").html(userInformationHTML(userData));
             $("#gh-repo-data").html(repoInformationHTML(repoData));
-        }, function(errorResponse) {
+        },
+        function(errorResponse) {
             if (errorResponse.status === 404) {
                 $("#gh-user-data").html(
-                    `<h2>No info found for user ${username}</h2>`
-                );
+                    `<h2>No info found for user ${username}</h2>`);
             } else {
                 console.log(errorResponse);
                 $("#gh-user-data").html(
-                    `<h2>Error: ${errorResponse.responseJSON.message}</h2>`
-                );
+                    `<h2>Error: ${errorResponse.responseJSON.message}</h2>`);
             }
-        }
-    );
+        });
 }
+
+$(document).ready(fetchGitHubInformation);
